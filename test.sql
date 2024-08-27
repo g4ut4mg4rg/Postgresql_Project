@@ -1,0 +1,116 @@
+select 
+    job_title_short as title,
+    job_location as location,
+    job_posted_date AT TIME ZONE 'UTC' AT TIME ZONE 'AEST' as date_time,
+    EXTRACT (MONTH from job_posted_date) as date_month,
+    EXTRACT (YEAR from job_posted_date) as date_year
+from
+    job_postings_fact
+limit 5;
+
+
+select  
+    company.name
+from 
+    job_postings_fact as jobs
+left join company_dim company 
+on jobs.company_id = company.company_id 
+where jobs.job_health_insurance='1' 
+and extract (month from jobs.job_posted_date)>'4'
+limit 5;
+
+
+create table mar_jobs as 
+(
+    select * 
+    from job_postings_fact 
+    where (extract (month from job_posted_date))='3')
+
+select * from feb_jobs;
+
+
+
+--CASE EXPRESSIONS
+
+select 
+    count(job_id) as number_of_jobs,
+    case
+        when job_work_from_home=False then 'NOPE'
+        when job_work_from_home=True then 'YUP'
+        else '¯\_(ツ)_/¯'
+    end as working_from_home
+from job_postings_fact 
+where job_title_short='Data Analyst'
+GROUP BY working_from_home 
+order by number_of_jobs desc
+limit 10;
+
+
+select 
+    count(job_id) as job_count,
+    --job_title_short,
+    case
+        when salary_year_avg>80000 then 'High'
+        when salary_year_avg>50000 then 'Good'
+        when salary_year_avg<=50000 then 'Low'
+        else '¯\_(ツ)_/¯'
+    end as salary,
+    round(avg(salary_year_avg)) as avg_sal
+from job_postings_fact 
+where salary_year_avg is not NULL and job_title_short='Data Analyst'
+GROUP BY salary
+order by round(avg(salary_year_avg)) desc;
+
+
+--companies offering jobs that don't require a degree
+-- select * from (
+--     select 
+--         company.name,
+--         jobs.job_no_degree_mention
+--     from 
+--     job_postings_fact as jobs 
+--     left join 
+--     company_dim  as company
+--     on jobs.company_id=company.company_id
+--     where jobs.job_no_degree_mention=True
+-- );
+
+-- select name as comapny_name
+-- from company_dim where company_id in (
+--     select company_id from job_postings_fact where job_no_degree_mention=True
+-- )
+
+
+-- with most_job_openings as (
+--     select 
+--         count(jobs.job_id) as no_of_jobs, 
+--         company.name as company_name
+--     from 
+--     job_postings_fact as jobs 
+--     right join 
+--     company_dim  as company
+--     on jobs.company_id=company.company_id 
+--     group BY company_name
+--     order by no_of_jobs desc
+-- )
+
+-- select * from most_job_openings;
+
+
+
+with remote_jobs as (
+    select skill.skill_id,
+    skill.skills as skill_name,
+    count(jobs.job_id) as number_of_jobs
+from job_postings_fact as jobs
+inner join skills_job_dim as skill_per_job 
+    on jobs.job_id = skill_per_job.job_id
+left join skills_dim as skill
+    on skill_per_job.skill_id=skill.skill_id
+
+group by skill.skill_id,skill_name
+order by number_of_jobs desc
+    --limit 1
+)
+select * from remote_jobs 
+where job_postings_fact.job_work_from_home=True
