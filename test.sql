@@ -98,19 +98,67 @@ order by round(avg(salary_year_avg)) desc;
 
 
 
-with remote_jobs as (
-    select skill.skill_id,
-    skill.skills as skill_name,
-    count(jobs.job_id) as number_of_jobs
-from job_postings_fact as jobs
-inner join skills_job_dim as skill_per_job 
-    on jobs.job_id = skill_per_job.job_id
-left join skills_dim as skill
-    on skill_per_job.skill_id=skill.skill_id
+-- with remote_jobs as (
+--     select skill.skill_id,
+--     skill.skills as skill_name,
+--     count(jobs.job_id) as number_of_jobs
+-- from job_postings_fact as jobs
+-- left join skills_job_dim as skill_per_job 
+--     on jobs.job_id = skill_per_job.job_id
+-- left join skills_dim as skill
+--     on skill_per_job.skill_id=skill.skill_id
+-- where jobs.job_work_from_home=True and jobs.job_title_short='Data Analyst'
+-- group by skill.skill_id,skill_name
+-- order by number_of_jobs desc
+--     limit 5
 
-group by skill.skill_id,skill_name
-order by number_of_jobs desc
-    --limit 1
+-- )
+-- select * from remote_jobs
+
+
+-- select 
+--     job_title_short,
+--     salary_year_avg,
+--     job_posted_date
+-- from jan_jobs
+-- where salary_year_avg is not NULL
+-- UNION
+-- select 
+--     job_title_short,
+--     salary_year_avg,
+--     job_posted_date
+-- from feb_jobs
+-- where salary_year_avg is not NULL
+-- order by job_posted_date
+
+
+
+-- select 
+--     skills.skills,
+--     skills.type 
+-- from skills_dim as skills
+-- union all
+-- select 
+--     skills.skills,
+--     skills.type 
+-- from skills_dim as skills
+-- left join skills_job_dim as skill_per_job on skills.skill_id = skill_per_job.skill_id
+-- left join job_postings_fact as jobs on skill_per_job.job_id = jobs.job_id
+-- where (extract(month from jobs.job_posted_date))>4 and salary_year_avg>700000
+
+select
+    job_title_short,
+    job_posted_date::Date,
+    salary_year_avg
+from(
+    select * from jan_jobs
+    UNION all
+    select * from feb_jobs
+    UNION all
+    select * from mar_jobs
 )
-select * from remote_jobs 
-where job_postings_fact.job_work_from_home=True
+-- left join skills_job_dim as skill_per_job on skills.skill_id = skill_per_job.skill_id
+-- left join job_postings_fact as jobs on skill_per_job.job_id = jobs.job_id
+where (extract(month from job_posted_date))<5 and salary_year_avg>70000
+order by job_posted_date desc
+limit 5
