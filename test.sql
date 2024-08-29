@@ -146,19 +146,23 @@ order by round(avg(salary_year_avg)) desc;
 -- left join job_postings_fact as jobs on skill_per_job.job_id = jobs.job_id
 -- where (extract(month from jobs.job_posted_date))>4 and salary_year_avg>700000
 
-select
-    job_title_short,
-    job_posted_date::Date,
-    salary_year_avg
-from(
-    select * from jan_jobs
-    UNION all
-    select * from feb_jobs
-    UNION all
-    select * from mar_jobs
-)
--- left join skills_job_dim as skill_per_job on skills.skill_id = skill_per_job.skill_id
--- left join job_postings_fact as jobs on skill_per_job.job_id = jobs.job_id
-where (extract(month from job_posted_date))<5 and salary_year_avg>70000
-order by job_posted_date desc
-limit 5
+-- select
+--     job_title_short,
+--     job_posted_date::Date,
+--     salary_year_avg
+-- from(
+--     select * from jan_jobs
+--     UNION all
+--     select * from feb_jobs
+--     UNION all
+--     select * from mar_jobs
+-- )
+-- -- left join skills_job_dim as skill_per_job on skills.skill_id = skill_per_job.skill_id
+-- -- left join job_postings_fact as jobs on skill_per_job.job_id = jobs.job_id
+-- where (extract(month from job_posted_date))<5 and salary_year_avg>70000
+-- order by job_posted_date desc
+-- limit 5;
+
+
+
+select distinct job_location from job_postings_fact ORDER BY job_location
