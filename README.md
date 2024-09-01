@@ -209,7 +209,9 @@ DataRobot - Average Salary : $155,486
 These skills are highly valued in remote Data Analyst positions, with PySpark topping the list. ​
 
 
-### Q5 Python: High demand (236) and salary ($101,397). 
+### Q5 Most optimal skills to learn for Data Analyst roles
+
+Python: High demand (236) and salary ($101,397). 
 Versatile for data science, automation, and web development. Top skill to learn.
 
 SQL: Highest demand (398), good salary ($97,237). 
